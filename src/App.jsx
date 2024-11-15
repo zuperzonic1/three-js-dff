@@ -1,6 +1,6 @@
 
 import './App.css'
-import ModelViewer from './ModelViewer'
+import ModelViewer from './Components/ModelViewer'
 
 function App() {
 
