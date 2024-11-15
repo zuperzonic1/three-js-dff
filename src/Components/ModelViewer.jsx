@@ -31,7 +31,7 @@ const ModelViewer = () => {
     }, [renderReady]);
 
     return (
-        <div className="flex min-h-screen bg-gray-900 text-white">
+        <div className="flex min-h-screen bg-dark-bg text-white">
             <ControlPanel
                 onRenderClick={handleRenderClick}
                 onReloadClick={handleReloadModel}

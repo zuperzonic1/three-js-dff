@@ -94,19 +94,19 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
     };
 
     return (
-        <div>
+        <div className="bg-dark-panel p-6 rounded-lg shadow-lg text-white">
             {/* DFF File Section */}
-            <div className="w-full mb-2">
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Upload DFF File</label>
+            <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-neon-orange mb-1">Upload DFF File</label>
                 <input
                     type="file"
                     accept=".dff"
                     onChange={(e) => handleUpload(e.target.files[0], 'dff')}
-                    className="w-full text-sm text-gray-300 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                    className="w-full text-sm file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-dark-bg file:text-neon-orange hover:file:bg-gray-700"
                 />
                 <div className="flex items-center mt-2">
                     <select
-                        className="text-sm bg-gray-700 text-white rounded p-2"
+                        className="text-sm bg-dark-bg text-neon-orange rounded p-2 focus:outline-none focus:ring-2 focus:ring-neon-orange"
                         onChange={(e) => setSelectedDff(e.target.value)}
                         value={selectedDff || ''}
                     >
@@ -118,14 +118,14 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
                         ))}
                     </select>
                     <button
-                        className="ml-2 p-2 bg-blue-600 hover:bg-blue-700 rounded"
+                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
                         onClick={() => downloadFile('dff')}
                         disabled={!selectedDff}
                     >
                         Download
                     </button>
                     <button
-                        className="ml-2 p-2 bg-green-600 hover:bg-green-700 rounded"
+                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
                         onClick={() => useFile('dff')}
                         disabled={!selectedDff}
                     >
@@ -136,16 +136,16 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
 
             {/* TXD File Section */}
             <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-gray-300 mb-1">Upload TXD File</label>
+                <label className="block text-sm font-semibold text-neon-orange mb-1">Upload TXD File</label>
                 <input
                     type="file"
                     accept=".txd"
                     onChange={(e) => handleUpload(e.target.files[0], 'txd')}
-                    className="w-full text-sm text-gray-300 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                    className="w-full text-sm file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-dark-bg file:text-neon-orange hover:file:bg-gray-700"
                 />
                 <div className="flex items-center mt-2">
                     <select
-                        className="text-sm bg-gray-700 text-white rounded p-2"
+                        className="text-sm bg-dark-bg text-neon-orange rounded p-2 focus:outline-none focus:ring-2 focus:ring-neon-orange"
                         onChange={(e) => setSelectedTxd(e.target.value)}
                         value={selectedTxd || ''}
                     >
@@ -157,14 +157,14 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
                         ))}
                     </select>
                     <button
-                        className="ml-2 p-2 bg-blue-600 hover:bg-blue-700 rounded"
+                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
                         onClick={() => downloadFile('txd')}
                         disabled={!selectedTxd}
                     >
                         Download
                     </button>
                     <button
-                        className="ml-2 p-2 bg-green-600 hover:bg-green-700 rounded"
+                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
                         onClick={() => useFile('txd')}
                         disabled={!selectedTxd}
                     >
