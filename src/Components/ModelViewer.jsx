@@ -31,7 +31,7 @@ const ModelViewer = () => {
     }, [renderReady]);
 
     return (
-        <div className="flex min-h-screen bg-dark-bg text-white">
+        <div className="flex flex-col md:flex-row min-h-screen bg-dark-bg text-white p-4 md:p-8">
             <ControlPanel
                 onRenderClick={handleRenderClick}
                 onReloadClick={handleReloadModel}
@@ -40,7 +40,9 @@ const ModelViewer = () => {
                 setModelData={setModelData}
                 setTextureData={setTextureData}
             />
-            <ViewerCanvas renderReady={renderReady} modelData={modelData} textureData={textureData} />
+            <div className="flex-1 mt-4 md:mt-0 md:ml-8">
+                <ViewerCanvas renderReady={renderReady} modelData={modelData} textureData={textureData} />
+            </div>
         </div>
     );
 };

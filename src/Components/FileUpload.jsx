@@ -11,7 +11,6 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
     const [isTxdUploaded, setIsTxdUploaded] = useState(false);
 
     useEffect(() => {
-        // Populate dropdown options from output.json
         const dropdownOptions = outputData.map(item => ({
             id: item.ID,
             model: item.Model,
@@ -19,7 +18,6 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
         setOptions(dropdownOptions);
     }, []);
 
-    // Unified upload handler to minimize redundant code
     const handleUpload = async (file, type) => {
         if (!file) return;
 
@@ -60,7 +58,6 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
         reader.readAsArrayBuffer(file);
     };
 
-    // Download selected file
     const downloadFile = (type) => {
         const selected = type === 'dff' ? selectedDff : selectedTxd;
         if (!selected) return;
@@ -76,7 +73,6 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
         document.body.removeChild(link);
     };
 
-    // Use selected file and treat it as an upload
     const useFile = (type) => {
         const selected = type === 'dff' ? selectedDff : selectedTxd;
         if (!selected) return;
@@ -88,25 +84,25 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
             .then(response => response.blob())
             .then(blob => {
                 const file = new File([blob], fileName, { type: type === 'dff' ? 'application/octet-stream' : 'image/txd' });
-                handleUpload(file, type); // Use the same upload handler for consistent processing
+                handleUpload(file, type);
             })
             .catch(error => console.error("Error fetching file:", error));
     };
 
     return (
-        <div className="bg-dark-panel p-6 rounded-lg shadow-lg text-white">
+        <div className="bg-dark-panel p-4 md:p-6 rounded-lg shadow-lg text-white w-full">
             {/* DFF File Section */}
             <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-neon-orange mb-1">Upload DFF File</label>
+                <label className="block text-sm font-semibold text-[#FF8C42] mb-1">Upload DFF File</label>
                 <input
                     type="file"
                     accept=".dff"
                     onChange={(e) => handleUpload(e.target.files[0], 'dff')}
-                    className="w-full text-sm file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-dark-bg file:text-neon-orange hover:file:bg-gray-700"
+                    className="w-full text-sm file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-dark-bg file:text-[#FF8C42] hover:file:bg-gray-700"
                 />
-                <div className="flex items-center mt-2">
+                <div className="flex flex-col sm:flex-row items-center mt-2 space-y-2 sm:space-y-0 sm:space-x-2">
                     <select
-                        className="text-sm bg-dark-bg text-neon-orange rounded p-2 focus:outline-none focus:ring-2 focus:ring-neon-orange"
+                        className="w-full sm:w-auto text-sm bg-dark-bg text-[#FF8C42] rounded p-2 focus:outline-none focus:ring-2 focus:ring-[#FF8C42]"
                         onChange={(e) => setSelectedDff(e.target.value)}
                         value={selectedDff || ''}
                     >
@@ -117,35 +113,37 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
                             </option>
                         ))}
                     </select>
-                    <button
-                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
-                        onClick={() => downloadFile('dff')}
-                        disabled={!selectedDff}
-                    >
-                        Download
-                    </button>
-                    <button
-                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
-                        onClick={() => useFile('dff')}
-                        disabled={!selectedDff}
-                    >
-                        Use File
-                    </button>
+                    <div className="flex w-full sm:w-auto space-x-2">
+                        <button
+                            className="p-2 w-full sm:w-auto bg-[#FF8C42] text-black font-semibold rounded hover:bg-[#FF6D00]"
+                            onClick={() => downloadFile('dff')}
+                            disabled={!selectedDff}
+                        >
+                            Download
+                        </button>
+                        <button
+                            className="p-2 w-full sm:w-auto bg-[#FF8C42] text-black font-semibold rounded hover:bg-[#FF6D00]"
+                            onClick={() => useFile('dff')}
+                            disabled={!selectedDff}
+                        >
+                            Use File
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* TXD File Section */}
             <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-neon-orange mb-1">Upload TXD File</label>
+                <label className="block text-sm font-semibold text-[#FF8C42] mb-1">Upload TXD File</label>
                 <input
                     type="file"
                     accept=".txd"
                     onChange={(e) => handleUpload(e.target.files[0], 'txd')}
-                    className="w-full text-sm file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-dark-bg file:text-neon-orange hover:file:bg-gray-700"
+                    className="w-full text-sm file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-dark-bg file:text-[#FF8C42] hover:file:bg-gray-700"
                 />
-                <div className="flex items-center mt-2">
+                <div className="flex flex-col sm:flex-row items-center mt-2 space-y-2 sm:space-y-0 sm:space-x-2">
                     <select
-                        className="text-sm bg-dark-bg text-neon-orange rounded p-2 focus:outline-none focus:ring-2 focus:ring-neon-orange"
+                        className="w-full sm:w-auto text-sm bg-dark-bg text-[#FF8C42] rounded p-2 focus:outline-none focus:ring-2 focus:ring-[#FF8C42]"
                         onChange={(e) => setSelectedTxd(e.target.value)}
                         value={selectedTxd || ''}
                     >
@@ -156,20 +154,22 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
                             </option>
                         ))}
                     </select>
-                    <button
-                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
-                        onClick={() => downloadFile('txd')}
-                        disabled={!selectedTxd}
-                    >
-                        Download
-                    </button>
-                    <button
-                        className="ml-2 p-2 bg-neon-orange text-black font-semibold rounded hover:bg-orange-500"
-                        onClick={() => useFile('txd')}
-                        disabled={!selectedTxd}
-                    >
-                        Use File
-                    </button>
+                    <div className="flex w-full sm:w-auto space-x-2">
+                        <button
+                            className="p-2 w-full sm:w-auto bg-[#FF8C42] text-black font-semibold rounded hover:bg-[#FF6D00]"
+                            onClick={() => downloadFile('txd')}
+                            disabled={!selectedTxd}
+                        >
+                            Download
+                        </button>
+                        <button
+                            className="p-2 w-full sm:w-auto bg-[#FF8C42] text-black font-semibold rounded hover:bg-[#FF6D00]"
+                            onClick={() => useFile('txd')}
+                            disabled={!selectedTxd}
+                        >
+                            Use File
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
