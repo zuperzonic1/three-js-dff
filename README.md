@@ -1,29 +1,25 @@
-# 3D Model Viewer
+# DFFinity
 
 A modern web-based 3D model viewer specifically designed for GTA San Andreas DFF and TXD files. Built with React Three Fiber and Three.js for high-performance 3D rendering in the browser.
 
-![3D Model Viewer Screenshot](https://via.placeholder.com/800x400/1e293b/8b5cf6?text=3D+Model+Viewer)
+![DFFinity Logo](public/DFFinity-logo.png)
 
 ## Features
 
 - 🎮 **Real-time 3D Rendering** - Interactive 3D models with smooth performance
-- 📁 **Drag & Drop Upload** - Easy file handling with visual feedback
-- 🔄 **Model Animation** - Auto-rotation to showcase all angles
-- 📐 **Wireframe Mode** - Toggle between solid and wireframe rendering
-- 📊 **Performance Stats** - Real-time FPS and render statistics
+- 📁 **Drag & Drop Upload** - Enhanced drag-and-drop interface with visual feedback
 - 🎯 **Camera Controls** - Orbit, pan, and zoom with mouse controls
-- 📚 **Built-in Library** - Pre-loaded models for quick testing
+- � **File Info Display** - Shows file name and size after upload
+- 📊 **Status Indicators** - Clear visual feedback on model and texture loading
 - 📱 **Responsive Design** - Works seamlessly on desktop and mobile
-- 🎨 **Modern UI** - Beautiful dark theme with purple accents
+- 🎨 **Modern UI** - Beautiful dark theme with purple/pink gradient accents
 
 ## Supported Formats
 
 - **DFF**: RenderWare geometry files from GTA San Andreas
 - **TXD**: RenderWare texture dictionary files
 
-## Live Demo
 
-[View Live Demo](https://your-demo-url.com) *(Replace with your actual demo URL)*
 
 ## Installation
 
@@ -53,7 +49,6 @@ A modern web-based 3D model viewer specifically designed for GTA San Andreas DFF
 1. **Upload Files**: Choose or drag & drop your DFF and TXD files
 2. **Load Model**: Click the "Load Model" button to render
 3. **Explore**: Use mouse controls to orbit around the model
-4. **Controls**: Use the control panel for animation and view options
 
 ### Mouse Controls
 
@@ -61,12 +56,7 @@ A modern web-based 3D model viewer specifically designed for GTA San Andreas DFF
 - **Right Click + Drag**: Pan the camera
 - **Scroll Wheel**: Zoom in and out
 
-### Control Panel
 
-- **🎯 Reset View**: Reset camera to default position
-- **▶️ Rotate**: Toggle model auto-rotation animation
-- **📐 Wireframe**: Switch between solid and wireframe rendering
-- **📊 Stats**: Show/hide performance statistics
 
 ## Technology Stack
 
@@ -88,10 +78,9 @@ src/
 │   ├── ModelViewer.jsx     # Main application component
 │   ├── FileUpload.jsx      # File upload interface
 │   ├── ControlPanel.jsx    # UI controls
-│   ├── ModelControls.jsx   # 3D viewport controls
+│   ├── ErrorBoundary.jsx   # Error handling
 │   ├── HelpPanel.jsx       # Help and documentation
-│   ├── Notifications.jsx   # Toast notifications
-│   └── ...
+│   └── Notifications.jsx   # Toast notifications
 ├── data-parser/
 │   ├── dff-parser.py       # Python DFF parsing scripts
 │   └── parser.py
@@ -139,14 +128,6 @@ src/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/zuperzonic1/three-js-dff/issues) page
-2. Create a new issue with detailed information
-3. Include browser version and error messages
 
 ---
 
