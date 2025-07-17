@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Buffer } from 'buffer';
 import FileUpload from './FileUpload';
 import ControlPanel from './ControlPanel';
@@ -17,21 +17,28 @@ const ModelViewer = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
-    const handleRenderClick = () => {
+    const handleRenderClick = useCallback(() => {
         if (modelData && textureData) {
             setRenderReady(true);
             setSuccess("Model loaded successfully! 🎉");
         } else {
             setError("Please upload both .dff and .txd files.");
         }
-    };
+    }, [modelData, textureData]);
 
-    const handleReloadModel = () => {
+    const handleReloadModel = useCallback(() => {
         setRenderReady(false);
         setModelData(null);
         setTextureData(null);
         setSuccess("Viewer reset successfully!");
-    };
+    }, []);
+
+    const handleErrorClose = useCallback(() => setError(null), []);
+    const handleSuccessClose = useCallback(() => setSuccess(null), []);
+
+    // Memoize heavy data to prevent unnecessary re-renders
+    const memoizedModelData = useMemo(() => modelData, [modelData]);
+    const memoizedTextureData = useMemo(() => textureData, [textureData]);
 
     useEffect(() => {
         console.log("Render Ready state changed:", renderReady);
@@ -80,8 +87,8 @@ const ModelViewer = () => {
                     <ErrorBoundary>
                         <ViewerCanvas 
                             renderReady={renderReady} 
-                            modelData={modelData} 
-                            textureData={textureData} 
+                            modelData={memoizedModelData} 
+                            textureData={memoizedTextureData} 
                         />
                     </ErrorBoundary>
                 </div>
@@ -90,8 +97,8 @@ const ModelViewer = () => {
 
             {/* Notifications */}
             <LoadingSpinner isLoading={isLoading} message="Processing files..." />
-            <ErrorToast error={error} onClose={() => setError(null)} />
-            <SuccessToast message={success} onClose={() => setSuccess(null)} />
+            <ErrorToast error={error} onClose={handleErrorClose} />
+            <SuccessToast message={success} onClose={handleSuccessClose} />
             
             {/* Help Panel */}
             <HelpPanel />

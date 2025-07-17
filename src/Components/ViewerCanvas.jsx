@@ -1,12 +1,12 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stats } from '@react-three/drei';
 import * as THREE from 'three';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import Model from './Model';
 import ModelControls from './ModelControls';
 
-const ViewerCanvas = ({ renderReady, modelData, textureData }) => {
+const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
     const [isAnimating, setIsAnimating] = useState(false);
     const [wireframe, setWireframe] = useState(false);
     const [showStats, setShowStats] = useState(false);
@@ -210,9 +210,11 @@ const ViewerCanvas = ({ renderReady, modelData, textureData }) => {
                 </div>
             </div>
         )}
-    </div>
-);
-};
+        </div>
+    );
+});
+
+ViewerCanvas.displayName = 'ViewerCanvas';
 
 ViewerCanvas.propTypes = {
     renderReady: PropTypes.bool.isRequired,

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { TxdParser, DffParser } from 'rw-parser';
 import { Buffer } from 'buffer';
 import PropTypes from 'prop-types';
 
-const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
+const FileUpload = memo(({ setModelData, setTextureData, setIsLoading }) => {
     const [isDffDragOver, setIsDffDragOver] = useState(false);
     const [isTxdDragOver, setIsTxdDragOver] = useState(false);
     const [selectedDffFile, setSelectedDffFile] = useState(null);
@@ -244,7 +244,9 @@ const FileUpload = ({ setModelData, setTextureData, setIsLoading }) => {
             </div>
         </div>
     );
-};
+});
+
+FileUpload.displayName = 'FileUpload';
 
 FileUpload.propTypes = {
     setModelData: PropTypes.func.isRequired,
