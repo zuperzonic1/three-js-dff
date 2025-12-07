@@ -89,9 +89,8 @@ const ModelViewer = () => {
                 </div>
             </div>
 
-            {/* Main Content Area */}
+            {/* Main Content Area - Unified Viewer */}
             <div className="flex-1 flex flex-col">
-                {/* Viewer Canvas */}
                 <div className="flex-1">
                     <ErrorBoundary>
                         <ViewerCanvas 
@@ -102,7 +101,6 @@ const ModelViewer = () => {
                         />
                     </ErrorBoundary>
                 </div>
-
             </div>
 
             {/* Notifications */}

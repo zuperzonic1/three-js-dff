@@ -4,32 +4,51 @@ import * as THREE from 'three';
 import { useState, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import Model from './Model';
+import MultiModel from './MultiModel';
 import ModelControls from './ModelControls';
 import { LoadingSpinner } from './Notifications';
 
 const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) => {
     const [isAnimating, setIsAnimating] = useState(false);
     const [wireframe, setWireframe] = useState(false);
+    const [backgroundColor, setBackgroundColor] = useState('#1a1f36');
     const [webglSupported, setWebglSupported] = useState(true);
     const [webglError, setWebglError] = useState(null);
     const controlsRef = useRef();
     const modelRef = useRef();
 
     const handleCameraReset = () => {
-        if (controlsRef.current) {
-            controlsRef.current.reset();
+        try {
+            if (controlsRef.current && controlsRef.current.reset) {
+                controlsRef.current.reset();
+            }
+            // Also reset the model rotation
+            if (modelRef.current && modelRef.current.resetRotation) {
+                modelRef.current.resetRotation();
+            }
+            // Stop animation when resetting
+            setIsAnimating(false);
+        } catch (error) {
+            console.error('Error resetting camera:', error);
+            // Fallback: just stop animation
+            setIsAnimating(false);
         }
-        // Also reset the model rotation
-        if (modelRef.current) {
-            modelRef.current.resetRotation();
-        }
-        // Stop animation when resetting
-        setIsAnimating(false);
     };
 
     const handleAnimationToggle = () => {
         setIsAnimating(!isAnimating);
     };
+
+    const handleBackgroundColorChange = (color) => {
+        setBackgroundColor(color);
+    };
+
+    // Always use MultiModel to render all geometries (even single DFF files can have multiple parts)
+    const shouldUseMultiModel = modelData && (
+        (modelData.clump && modelData.clump.geometryList && modelData.clump.geometryList.geometries) ||
+        (modelData.geometryList && modelData.geometryList.geometries) ||
+        (modelData.geometries)
+    );
 
     // Check WebGL support on component mount
     useEffect(() => {
@@ -134,9 +153,10 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) =
                         isAnimating={isAnimating}
                         wireframe={wireframe}
                         onWireframeToggle={() => setWireframe(!wireframe)}
+                        backgroundColor={backgroundColor}
+                        onBackgroundColorChange={handleBackgroundColorChange}
                     />
                 <Canvas
-                    className="bg-gradient-to-br from-slate-900/50 to-purple-900/50"
                     camera={{ position: [0, 5, 8], fov: 60 }}
                     onError={handleCanvasError}
                     gl={{ 
@@ -144,9 +164,11 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) =
                         alpha: true,
                         powerPreference: "high-performance",
                         toneMapping: THREE.ACESFilmicToneMapping,
-                        toneMappingExposure: 1.2
+                        toneMappingExposure: 1.2,
+                        clearColor: backgroundColor
                     }}
                 >
+                    <color attach="background" args={[backgroundColor]} />
                     {/* Improved Lighting */}
                     <ambientLight intensity={0.4} />
                     <directionalLight 
@@ -160,14 +182,24 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) =
                     <pointLight position={[10, 5, 10]} intensity={0.3} color="#4ecdc4" />
                     
                     
-                    {/* Model */}
-                    <Model 
-                        ref={modelRef}
-                        modelData={modelData} 
-                        textureData={textureData} 
-                        isAnimating={isAnimating}
-                        wireframe={wireframe}
-                    />
+                    {/* Model - Always use MultiModel to render all geometries */}
+                    {shouldUseMultiModel ? (
+                        <MultiModel 
+                            ref={modelRef}
+                            modelData={modelData} 
+                            textureData={textureData} 
+                            isAnimating={isAnimating}
+                            wireframe={wireframe}
+                        />
+                    ) : (
+                        <Model 
+                            ref={modelRef}
+                            modelData={modelData} 
+                            textureData={textureData} 
+                            isAnimating={isAnimating}
+                            wireframe={wireframe}
+                        />
+                    )}
                     
                     {/* Controls */}
                     <OrbitControls 
@@ -177,7 +209,6 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) =
                         enableRotate={true}
                         minDistance={1}
                         maxDistance={50}
-                        maxPolarAngle={Math.PI}
                         dampingFactor={0.05}
                         enableDamping={true}
                     />

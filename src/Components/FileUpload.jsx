@@ -15,7 +15,6 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading, resetTrig
     useEffect(() => {
         setSelectedDffFile(null);
         setSelectedTxdFile(null);
-        // Clear file input values to allow re-uploading the same file
         if (dffInputRef.current) {
             dffInputRef.current.value = '';
         }
@@ -24,10 +23,43 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading, resetTrig
         }
     }, [resetTrigger]);
 
+    const processDFFWithMultiMesh = (parsedModelData) => {
+        if (!parsedModelData) return parsedModelData;
+
+        let geometries = [];
+        if (parsedModelData.clump?.geometryList?.geometries) {
+            geometries = parsedModelData.clump.geometryList.geometries;
+        } else if (parsedModelData.geometryList?.geometries) {
+            geometries = parsedModelData.geometryList.geometries;
+        }
+
+        console.log(`Enhanced FileUpload: Found ${geometries.length} geometries in DFF`);
+        
+        return {
+            ...parsedModelData,
+            clump: {
+                ...parsedModelData.clump,
+                geometryList: {
+                    ...parsedModelData.clump?.geometryList,
+                    geometries: geometries,
+                    geometryCount: geometries.length
+                }
+            }
+        };
+    };
+
+    const readFileAsBuffer = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(new Buffer(reader.result));
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    };
+
     const handleUpload = async (file, type) => {
         if (!file) return;
 
-        // Set the selected file name
         if (type === 'dff') {
             setSelectedDffFile(file);
         } else if (type === 'txd') {
@@ -35,73 +67,75 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading, resetTrig
         }
 
         setIsLoading(true);
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            const buffer = new Buffer(reader.result);
+        try {
+            const buffer = await readFileAsBuffer(file);
+            
             if (type === 'dff') {
-                try {
-                    const dffParser = new DffParser(buffer);
-                    const parsedModelData = dffParser.parse();
-                    console.log('Parsed DFF Model Data:', parsedModelData);
-                    if (!parsedModelData) {
-                        console.error('DFF parsing returned null or undefined.');
-                    }
-                    setModelData(parsedModelData);
-                } catch (err) {
-                    console.error('Error parsing DFF file:', err);
+                const dffParser = new DffParser(buffer);
+                const parsedModelData = dffParser.parse();
+                console.log(`Parsed DFF Model Data (${file.name}):`, parsedModelData);
+                
+                if (parsedModelData) {
+                    const enhancedModelData = processDFFWithMultiMesh(parsedModelData);
+                    setModelData({ ...enhancedModelData, sourceFile: file.name });
                 }
             } else if (type === 'txd') {
-                try {
-                    const txdParser = new TxdParser(buffer);
-                    const parsedTxdData = txdParser.parse();
-
-                    const textureNative = parsedTxdData.textureDictionary.textureNatives[0];
-                    const textureMipmap = textureNative.mipmaps[0];
-                    const width = textureNative.width;
-                    const height = textureNative.height;
-
-                    console.log('Parsed TXD Texture Data:', {
-                        data: new Uint8Array(textureMipmap),
-                        width,
-                        height,
+                const txdParser = new TxdParser(buffer);
+                const parsedTxdData = txdParser.parse();
+                
+                console.log(`Processing TXD file: ${file.name}`, parsedTxdData);
+                
+                if (parsedTxdData?.textureDictionary?.textureNatives) {
+                    const textureNatives = parsedTxdData.textureDictionary.textureNatives;
+                    console.log(`Found ${textureNatives.length} textures in ${file.name}`);
+                    
+                    // Process all textures from the single TXD file
+                    const allTextures = textureNatives.map((native, index) => {
+                        const textureMipmap = native.mipmaps[0];
+                        return {
+                            data: new Uint8Array(textureMipmap),
+                            width: native.width,
+                            height: native.height,
+                            name: native.textureName || native.name || `texture_${index}`,
+                            sourceFile: file.name,
+                            index: index
+                        };
                     });
 
-                    setTextureData({
-                        data: new Uint8Array(textureMipmap),
-                        width,
-                        height,
-                    });
-                } catch (err) {
-                    console.error('Error parsing TXD file:', err);
+                    console.log('Parsed TXD Texture Data:', allTextures.map(tex => ({
+                        name: tex.name,
+                        size: `${tex.width}x${tex.height}`,
+                        sourceFile: tex.sourceFile
+                    })));
+
+                    if (allTextures.length > 0) {
+                        setTextureData({
+                            data: allTextures[0].data,
+                            width: allTextures[0].width,
+                            height: allTextures[0].height,
+                            allTextures: allTextures,
+                            textureCount: allTextures.length
+                        });
+                    }
                 }
             }
+        } catch (error) {
+            console.error(`Error processing ${type} file:`, error);
+        } finally {
             setIsLoading(false);
-        };
-
-        reader.onerror = () => {
-            setIsLoading(false);
-            console.error("Error reading file");
-        };
-
-        reader.readAsArrayBuffer(file);
+        }
     };
 
     const handleDffDragOver = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isDffDragOver) {
-            console.log('DFF drag over activated');
-            setIsDffDragOver(true);
-        }
+        setIsDffDragOver(true);
     };
 
     const handleDffDragLeave = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        // Only set to false if we're actually leaving the drop zone
-        if (e.currentTarget && !e.currentTarget.contains(e.relatedTarget)) {
-            console.log('DFF drag leave activated');
+        if (!e.currentTarget.contains(e.relatedTarget)) {
             setIsDffDragOver(false);
         }
     };
@@ -110,33 +144,24 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading, resetTrig
         e.preventDefault();
         e.stopPropagation();
         setIsDffDragOver(false);
-        const files = Array.from(e.dataTransfer.files);
-        const file = files[0];
-        if (file) {
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (extension === 'dff') {
-                handleUpload(file, 'dff');
-            } else {
-                alert('Please drop a .dff file');
-            }
+        const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.name.toLowerCase().endsWith('.dff')
+        );
+        if (files.length > 0) {
+            handleUpload(files[0], 'dff');
         }
     };
 
     const handleTxdDragOver = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isTxdDragOver) {
-            console.log('TXD drag over activated');
-            setIsTxdDragOver(true);
-        }
+        setIsTxdDragOver(true);
     };
 
     const handleTxdDragLeave = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        // Only set to false if we're actually leaving the drop zone
-        if (e.currentTarget && !e.currentTarget.contains(e.relatedTarget)) {
-            console.log('TXD drag leave activated');
+        if (!e.currentTarget.contains(e.relatedTarget)) {
             setIsTxdDragOver(false);
         }
     };
@@ -145,18 +170,13 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading, resetTrig
         e.preventDefault();
         e.stopPropagation();
         setIsTxdDragOver(false);
-        const files = Array.from(e.dataTransfer.files);
-        const file = files[0];
-        if (file) {
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (extension === 'txd') {
-                handleUpload(file, 'txd');
-            } else {
-                alert('Please drop a .txd file');
-            }
+        const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.name.toLowerCase().endsWith('.txd')
+        );
+        if (files.length > 0) {
+            handleUpload(files[0], 'txd');
         }
     };
-
 
     return (
         <div className="space-y-6">

@@ -5,7 +5,9 @@ const ModelControls = ({
     onAnimationToggle, 
     isAnimating, 
     wireframe, 
-    onWireframeToggle 
+    onWireframeToggle,
+    backgroundColor,
+    onBackgroundColorChange
 }) => {
     return (
         <div className="absolute top-4 right-4 bg-slate-800/30 backdrop-blur-sm border border-purple-500/20 rounded-lg p-4 space-y-3 z-10">
@@ -44,6 +46,21 @@ const ModelControls = ({
                 >
                     {wireframe ? 'Solid View' : 'Wireframe'}
                 </button>
+
+                {/* Background Color Picker */}
+                <div className="bg-slate-700/50 rounded border border-slate-600/50 p-3 space-y-2">
+                    <label className="text-xs text-slate-300 font-medium">Background Color</label>
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="color"
+                            value={backgroundColor}
+                            onChange={(e) => onBackgroundColorChange(e.target.value)}
+                            className="w-8 h-8 rounded border border-slate-500 bg-transparent cursor-pointer"
+                            title="Choose Background Color"
+                        />
+                        <span className="text-xs text-slate-400 font-mono">{backgroundColor}</span>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -55,6 +72,8 @@ ModelControls.propTypes = {
     isAnimating: PropTypes.bool.isRequired,
     wireframe: PropTypes.bool.isRequired,
     onWireframeToggle: PropTypes.func.isRequired,
+    backgroundColor: PropTypes.string.isRequired,
+    onBackgroundColorChange: PropTypes.func.isRequired,
 };
 
 export default ModelControls;
