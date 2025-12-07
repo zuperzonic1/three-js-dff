@@ -5,7 +5,7 @@ import ControlPanel from './ControlPanel';
 import ViewerCanvas from './ViewerCanvas';
 import HelpPanel from './HelpPanel';
 import ErrorBoundary from './ErrorBoundary';
-import { LoadingSpinner, ErrorToast, SuccessToast } from './Notifications';
+import { ErrorToast, SuccessToast } from './Notifications';
 
 const ModelViewer = () => {
     window.Buffer = Buffer;
@@ -16,11 +16,12 @@ const ModelViewer = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [resetTrigger, setResetTrigger] = useState(0);
 
     const handleRenderClick = useCallback(() => {
         if (modelData && textureData) {
             setRenderReady(true);
-            setSuccess("Model loaded successfully! 🎉");
+            setSuccess("Model loaded successfully");
         } else {
             setError("Please upload both .dff and .txd files.");
         }
@@ -30,7 +31,8 @@ const ModelViewer = () => {
         setRenderReady(false);
         setModelData(null);
         setTextureData(null);
-        setSuccess("Viewer reset successfully!");
+        setResetTrigger(prev => prev + 1); // Trigger FileUpload reset
+        setSuccess("Viewer reset successfully");
     }, []);
 
     const handleErrorClose = useCallback(() => setError(null), []);
@@ -48,7 +50,10 @@ const ModelViewer = () => {
         <div className="min-h-screen flex flex-col lg:flex-row">
             {/* Header for mobile */}
             <div className="lg:hidden bg-slate-800/50 backdrop-blur-sm border-b border-purple-500/20 p-4 flex justify-center">
-                <img src="/DFFinity-logo.png" alt="DFFinity Logo" className="h-14 mx-auto" />
+                <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-slate-900/90 rounded-full blur-sm"></div>
+                    <img src="/DFFinity-logo.png" alt="DFFinity Logo" className="h-14 relative z-10" />
+                </div>
             </div>
 
             {/* Sidebar */}
@@ -56,9 +61,12 @@ const ModelViewer = () => {
                 <div className="p-6">
                     {/* Logo/Title for desktop */}
                     <div className="hidden lg:block mb-8 text-center">
-                        <img src="/DFFinity-logo.png" alt="DFFinity Logo" className="h-24 mx-auto mb-2" />
+                        <div className="relative mb-4 inline-block">
+                            <div className="absolute inset-0 bg-slate-900/90 rounded-full blur-sm"></div>
+                            <img src="/DFFinity-logo.png" alt="DFFinity Logo" className="h-24 relative z-10" />
+                        </div>
                         <p className="text-slate-400 text-sm">
-                            Upload and visualize DFF/TXD files
+                            Professional DFF/TXD File Visualization
                         </p>
                     </div>
 
@@ -66,7 +74,8 @@ const ModelViewer = () => {
                     <FileUpload 
                         setModelData={setModelData} 
                         setTextureData={setTextureData} 
-                        setIsLoading={setIsLoading} 
+                        setIsLoading={setIsLoading}
+                        resetTrigger={resetTrigger}
                     />
 
                     {/* Control Panel */}
@@ -88,7 +97,8 @@ const ModelViewer = () => {
                         <ViewerCanvas 
                             renderReady={renderReady} 
                             modelData={memoizedModelData} 
-                            textureData={memoizedTextureData} 
+                            textureData={memoizedTextureData}
+                            isLoading={isLoading}
                         />
                     </ErrorBoundary>
                 </div>
@@ -96,7 +106,6 @@ const ModelViewer = () => {
             </div>
 
             {/* Notifications */}
-            <LoadingSpinner isLoading={isLoading} message="Processing files..." />
             <ErrorToast error={error} onClose={handleErrorClose} />
             <SuccessToast message={success} onClose={handleSuccessClose} />
             

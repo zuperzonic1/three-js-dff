@@ -1,15 +1,15 @@
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stats } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useState, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import Model from './Model';
 import ModelControls from './ModelControls';
+import { LoadingSpinner } from './Notifications';
 
-const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
+const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) => {
     const [isAnimating, setIsAnimating] = useState(false);
     const [wireframe, setWireframe] = useState(false);
-    const [showStats, setShowStats] = useState(false);
     const [webglSupported, setWebglSupported] = useState(true);
     const [webglError, setWebglError] = useState(null);
     const controlsRef = useRef();
@@ -68,9 +68,11 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
                 <div className="relative">
                     <div className="w-32 h-32 mx-auto border-4 border-red-500/20 rounded-full flex items-center justify-center">
                         <div className="w-20 h-20 border-4 border-red-500/40 rounded-full flex items-center justify-center">
-                            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">⚠️</span>
-                            </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -118,6 +120,9 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
 
     return (
         <div className="h-full w-full relative">
+            {/* Loading Spinner */}
+            <LoadingSpinner isLoading={isLoading} message="Processing files..." />
+            
             {!webglSupported ? (
                 <WebGLErrorFallback />
             ) : renderReady && modelData ? (
@@ -129,8 +134,6 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
                         isAnimating={isAnimating}
                         wireframe={wireframe}
                         onWireframeToggle={() => setWireframe(!wireframe)}
-                        showStats={showStats}
-                        onStatsToggle={() => setShowStats(!showStats)}
                     />
                 <Canvas
                     className="bg-gradient-to-br from-slate-900/50 to-purple-900/50"
@@ -156,8 +159,6 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
                     <pointLight position={[-10, 5, -10]} intensity={0.3} color="#ff6b6b" />
                     <pointLight position={[10, 5, 10]} intensity={0.3} color="#4ecdc4" />
                     
-                    {/* Grid Helper */}
-                    <gridHelper args={[20, 20, '#444444', '#444444']} />
                     
                     {/* Model */}
                     <Model 
@@ -181,8 +182,6 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
                         enableDamping={true}
                     />
 
-                    {/* Stats */}
-                    {showStats && <Stats />}
                 </Canvas>
             </div>
         ) : (
@@ -191,9 +190,11 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
                     <div className="relative">
                         <div className="w-32 h-32 mx-auto border-4 border-purple-500/20 rounded-full flex items-center justify-center">
                             <div className="w-20 h-20 border-4 border-purple-500/40 rounded-full flex items-center justify-center">
-                                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                                    <span className="text-2xl">🎨</span>
-                                </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                            </svg>
+                        </div>
                             </div>
                         </div>
                         <div className="absolute inset-0 border-4 border-purple-500/10 rounded-full animate-pulse"></div>
@@ -201,10 +202,10 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData }) => {
                     
                     <div className="space-y-2">
                         <h3 className="text-xl font-semibold text-white">
-                            Ready to Render
+                            Model Viewer Ready
                         </h3>
                         <p className="text-slate-400 max-w-md">
-                            Upload your DFF and TXD files, then click &quot;Load Model&quot; to begin visualization
+                            Upload your DFF and TXD files, then click Load Model to begin visualization
                         </p>
                     </div>
                 </div>
@@ -220,6 +221,7 @@ ViewerCanvas.propTypes = {
     renderReady: PropTypes.bool.isRequired,
     modelData: PropTypes.object,
     textureData: PropTypes.object,
+    isLoading: PropTypes.bool,
 };
 
 export default ViewerCanvas;

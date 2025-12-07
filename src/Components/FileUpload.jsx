@@ -1,13 +1,28 @@
-import { useState, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { TxdParser, DffParser } from 'rw-parser';
 import { Buffer } from 'buffer';
 import PropTypes from 'prop-types';
 
-const FileUpload = memo(({ setModelData, setTextureData, setIsLoading }) => {
+const FileUpload = memo(({ setModelData, setTextureData, setIsLoading, resetTrigger }) => {
     const [isDffDragOver, setIsDffDragOver] = useState(false);
     const [isTxdDragOver, setIsTxdDragOver] = useState(false);
     const [selectedDffFile, setSelectedDffFile] = useState(null);
     const [selectedTxdFile, setSelectedTxdFile] = useState(null);
+    const dffInputRef = useRef(null);
+    const txdInputRef = useRef(null);
+
+    // Reset file selections when resetTrigger changes
+    useEffect(() => {
+        setSelectedDffFile(null);
+        setSelectedTxdFile(null);
+        // Clear file input values to allow re-uploading the same file
+        if (dffInputRef.current) {
+            dffInputRef.current.value = '';
+        }
+        if (txdInputRef.current) {
+            txdInputRef.current.value = '';
+        }
+    }, [resetTrigger]);
 
     const handleUpload = async (file, type) => {
         if (!file) return;
@@ -166,6 +181,7 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading }) => {
                 <div className="space-y-3">
                     <div className="relative">
                         <input
+                            ref={dffInputRef}
                             type="file"
                             accept=".dff"
                             onChange={(e) => handleUpload(e.target.files[0], 'dff')}
@@ -215,6 +231,7 @@ const FileUpload = memo(({ setModelData, setTextureData, setIsLoading }) => {
                 <div className="space-y-3">
                     <div className="relative">
                         <input
+                            ref={txdInputRef}
                             type="file"
                             accept=".txd"
                             onChange={(e) => handleUpload(e.target.files[0], 'txd')}
@@ -252,6 +269,7 @@ FileUpload.propTypes = {
     setModelData: PropTypes.func.isRequired,
     setTextureData: PropTypes.func.isRequired,
     setIsLoading: PropTypes.func.isRequired,
+    resetTrigger: PropTypes.number,
 };
 
 export default FileUpload;

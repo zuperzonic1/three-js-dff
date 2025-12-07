@@ -1,4 +1,3 @@
-
 import ModelViewer from './Components/ModelViewer'
 
 function App() {
