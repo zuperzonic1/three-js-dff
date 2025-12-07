@@ -18,14 +18,6 @@ const ModelViewer = () => {
     const [success, setSuccess] = useState(null);
     const [resetTrigger, setResetTrigger] = useState(0);
 
-    const handleRenderClick = useCallback(() => {
-        if (modelData && textureData) {
-            setRenderReady(true);
-            setSuccess("Model loaded successfully");
-        } else {
-            setError("Please upload both .dff and .txd files.");
-        }
-    }, [modelData, textureData]);
 
     const handleReloadModel = useCallback(() => {
         setRenderReady(false);
@@ -41,6 +33,14 @@ const ModelViewer = () => {
     // Memoize heavy data to prevent unnecessary re-renders
     const memoizedModelData = useMemo(() => modelData, [modelData]);
     const memoizedTextureData = useMemo(() => textureData, [textureData]);
+
+    // Automatically load model when both files are uploaded
+    useEffect(() => {
+        if (modelData && textureData && !renderReady) {
+            setRenderReady(true);
+            setSuccess("Model loaded automatically");
+        }
+    }, [modelData, textureData, renderReady]);
 
     useEffect(() => {
         console.log("Render Ready state changed:", renderReady);
@@ -80,7 +80,6 @@ const ModelViewer = () => {
 
                     {/* Control Panel */}
                     <ControlPanel
-                        onRenderClick={handleRenderClick}
                         onReloadClick={handleReloadModel}
                         isLoading={isLoading}
                         modelData={modelData}
