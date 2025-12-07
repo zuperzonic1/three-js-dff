@@ -3,7 +3,6 @@ import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useState, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
-import Model from './Model';
 import MultiModel from './MultiModel';
 import ModelControls from './ModelControls';
 import { LoadingSpinner } from './Notifications';
@@ -43,12 +42,6 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) =
         setBackgroundColor(color);
     };
 
-    // Always use MultiModel to render all geometries (even single DFF files can have multiple parts)
-    const shouldUseMultiModel = modelData && (
-        (modelData.clump && modelData.clump.geometryList && modelData.clump.geometryList.geometries) ||
-        (modelData.geometryList && modelData.geometryList.geometries) ||
-        (modelData.geometries)
-    );
 
     // Check WebGL support on component mount
     useEffect(() => {
@@ -183,23 +176,13 @@ const ViewerCanvas = memo(({ renderReady, modelData, textureData, isLoading }) =
                     
                     
                     {/* Model - Always use MultiModel to render all geometries */}
-                    {shouldUseMultiModel ? (
-                        <MultiModel 
-                            ref={modelRef}
-                            modelData={modelData} 
-                            textureData={textureData} 
-                            isAnimating={isAnimating}
-                            wireframe={wireframe}
-                        />
-                    ) : (
-                        <Model 
-                            ref={modelRef}
-                            modelData={modelData} 
-                            textureData={textureData} 
-                            isAnimating={isAnimating}
-                            wireframe={wireframe}
-                        />
-                    )}
+                    <MultiModel 
+                        ref={modelRef}
+                        modelData={modelData} 
+                        textureData={textureData} 
+                        isAnimating={isAnimating}
+                        wireframe={wireframe}
+                    />
                     
                     {/* Controls */}
                     <OrbitControls 
